@@ -18,32 +18,50 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
     vscode.commands.registerCommand(commandId, async () => {
       const active = vscode.window.activeTextEditor;
       if (active) {
-        var currentlyOpenTabfilePath = active.document.fileName;
-        vscode.window.showInformationMessage(
-          `Recording Started! ${currentlyOpenTabfilePath}`
-        );
-        var txt = active.document.getText().replace(/\r\n/g, "\n");
-        var firstLine = active.document.lineAt(0);
-        var lastLine = active.document.lineAt(active.document.lineCount - 1);
-        var textRange = new vscode.Range(
-          firstLine.range.start,
-          lastLine.range.end
-        );
-        active.edit((editBuilder) => {
-          editBuilder.replace(textRange, "");
-        });
+        startRecording(active);
+        var txt = endOfFileReplacment(active);
+        var textRange = getRange(active);
+        emptythefile(active, textRange);
 
-        for (let i = 0; i < txt.length; i++) {
-          await delay(80);
-          await active.edit((editBuilder) => {
-            editBuilder.insert(active.selection.active, txt.charAt(i));
-          });
-        }
+        await retypetxt(txt, active);
       }
     })
   );
 
   // create a new status bar item that we can now manage
+}
+
+function startRecording(active: vscode.TextEditor) {
+  var currentlyOpenTabfilePath = active.document.fileName;
+  vscode.window.showInformationMessage(
+    `Recording Started! ${currentlyOpenTabfilePath}`
+  );
+}
+
+function endOfFileReplacment(active: vscode.TextEditor) {
+  return active.document.getText().replace(/\r\n/g, "\n");
+}
+
+function getRange(active: vscode.TextEditor) {
+  var firstLine = active.document.lineAt(0);
+  var lastLine = active.document.lineAt(active.document.lineCount - 1);
+  var textRange = new vscode.Range(firstLine.range.start, lastLine.range.end);
+  return textRange;
+}
+
+function emptythefile(active: vscode.TextEditor, textRange: vscode.Range) {
+  active.edit((editBuilder) => {
+    editBuilder.replace(textRange, "");
+  });
+}
+
+async function retypetxt(txt: string, active: vscode.TextEditor) {
+  for (let i = 0; i < txt.length; i++) {
+    await delay(80);
+    await active.edit((editBuilder) => {
+      editBuilder.insert(active.selection.active, txt.charAt(i));
+    });
+  }
 }
 
 function barbtn(subscriptions: { dispose(): any }[]) {
