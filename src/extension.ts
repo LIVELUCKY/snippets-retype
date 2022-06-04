@@ -18,7 +18,9 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
     vscode.commands.registerCommand(commandId, async () => {
       const active = vscode.window.activeTextEditor;
       if (active) {
-        startRecording(active);
+        var currentlyOpenTabfilePath = getActiveWindowName(active);
+        informationMassage(currentlyOpenTabfilePath);
+
         var txt = endOfFileReplacment(active);
         var textRange = getRange(active);
         emptythefile(active, textRange);
@@ -31,11 +33,14 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
   // create a new status bar item that we can now manage
 }
 
-function startRecording(active: vscode.TextEditor) {
-  var currentlyOpenTabfilePath = active.document.fileName;
+function informationMassage(currentlyOpenTabfilePath: string) {
   vscode.window.showInformationMessage(
     `Recording Started! ${currentlyOpenTabfilePath}`
   );
+}
+
+function getActiveWindowName(active: vscode.TextEditor) {
+  return active.document.fileName;
 }
 
 function endOfFileReplacment(active: vscode.TextEditor) {
@@ -56,10 +61,18 @@ function emptythefile(active: vscode.TextEditor, textRange: vscode.Range) {
 }
 
 async function retypetxt(txt: string, active: vscode.TextEditor) {
-  for (let i = 0; i < txt.length; i++) {
-    await delay(80);
+  for (let i = -1; i < txt.length; i++) {
+    await delay(20);
+    await insertCharachter(i);
+  }
+
+  async function insertCharachter(i: number) {
     await active.edit((editBuilder) => {
-      editBuilder.insert(active.selection.active, txt.charAt(i));
+      const doc = active.document;
+      editBuilder.insert(
+        new vscode.Position(doc.lineAt(doc.lineCount - 1).lineNumber + 1, 0),
+        txt.charAt(i)
+      );
     });
   }
 }
