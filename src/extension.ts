@@ -1,11 +1,10 @@
-// import * as vscode from "vscode";
-
 import * as vscode from "vscode";
 
-const commandId = "youtube-snippet-videos-maker.start";
+const commandId: string = "snippet-retyper.start";
+var millisecondForCharachter: number = 20;
 
-async function delay(milliseconds: number) {
-  await new Promise((resolve) => setTimeout(resolve, milliseconds));
+async function delay() {
+  await new Promise((resolve) => setTimeout(resolve, millisecondForCharachter));
 }
 
 export function activate({ subscriptions }: vscode.ExtensionContext) {
@@ -16,17 +15,37 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
       if (active) {
         const tabName = getActiveWindowName(active);
         informationMassage(tabName);
-
         const txt = endOfFileRemove(active);
         const textRange = getRange(active);
+        await inputBox(txt, active);
         emptyTheFile(active, textRange);
-
-        await retypeText(txt, active);
       }
     })
   );
+}
 
-  // create a new status bar item that we can now manage
+async function inputBox(txt: string, active: vscode.TextEditor) {
+  await vscode.window
+    .showInputBox({
+      prompt: "Seconds for retype",
+      placeHolder: "the total seconds for retype",
+      value: "1",
+      title: "Snippet Retyper",
+    })
+    .then(async (value) => {
+      if (!(value === undefined || value === "")) {
+        assignMilliSecForChar(value);
+      } else {
+        return;
+      }
+      if (millisecondForCharachter > 0) {
+        await retypeText(txt, active);
+      }
+    });
+
+  function assignMilliSecForChar(value: string) {
+    millisecondForCharachter = (Number(value) * 1000) / txt.length;
+  }
 }
 
 function informationMassage(tabName: string) {
@@ -55,18 +74,19 @@ function emptyTheFile(active: vscode.TextEditor, textRange: vscode.Range) {
 
 async function retypeText(txt: string, active: vscode.TextEditor) {
   for (let i = -1; i < txt.length; i++) {
-    await delay(10);
+    await delay();
     await insertChar(i);
   }
 
   async function insertChar(i: number) {
+    // i = -1
     await active.edit((editBuilder) => {
-      const doc = active.document;
-      const p = new vscode.Position(
-        doc.lineAt(doc.lineCount - 1).lineNumber + 1,
+      const doc = active.document; // get the current document
+      const p = new vscode.Position( // create a new position
+        doc.lineAt(doc.lineCount - 1).lineNumber + 1, // line number
         0
       );
-      active.revealRange(new vscode.Range(p, p));
+      active.revealRange(new vscode.Range(p, p)); // reveal the position
 
       editBuilder.insert(p, txt.charAt(i));
     });
@@ -80,7 +100,7 @@ function snippetBtn(subscriptions: { dispose(): any }[]) {
   );
   myStatusBarItem.command = commandId;
   subscriptions.push(myStatusBarItem);
-  myStatusBarItem.text = "snippet-camera";
+  myStatusBarItem.text = "Snippet Retyper";
   myStatusBarItem.show();
 }
 

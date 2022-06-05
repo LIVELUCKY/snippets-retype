@@ -1,6 +1,6 @@
-# youtube-snippet-videos-maker README
+# snippet-retyper README
 
-This is the README for your extension "youtube-snippet-videos-maker". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "snippet-retyper". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
