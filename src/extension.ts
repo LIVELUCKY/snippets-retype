@@ -38,7 +38,7 @@ async function inputBox(txt: string, active: vscode.TextEditor) {
       } else {
         return;
       }
-      if (millisecondForCharachter > 0) {
+      if (millisecondForCharachter > 5) {
         await retypeText(txt, active);
       }
     });
