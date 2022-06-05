@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 
 const commandId: string = "snippet-retyper.start";
 var millisecondForCharachter: number = 20;
-
+var isOn: boolean = false;
 async function delay() {
   await new Promise((resolve) => setTimeout(resolve, millisecondForCharachter));
 }
@@ -11,21 +11,28 @@ export function activate({ subscriptions }: vscode.ExtensionContext) {
   snippetBtn(subscriptions);
   subscriptions.push(
     vscode.commands.registerCommand(commandId, async () => {
-      const active = vscode.window.activeTextEditor;
-      if (active) {
-        const tabName = getActiveWindowName(active);
-        informationMassage(tabName);
-        const txt = endOfFileRemove(active);
-        const textRange = getRange(active);
-        await inputBox(txt, active);
-        emptyTheFile(active, textRange);
+      if (isOn) {
+        isOn = false;
+        vscode.window.showInformationMessage("Snippet Retyper is off");
+      }else {
+        isOn = true;
+        const active = vscode.window.activeTextEditor;
+        if (active) {
+          const tabName = getActiveWindowName(active);
+          informationMassage(tabName);
+          const txt = endOfFileRemove(active);
+          const textRange = getRange(active);
+          await inputBox(txt, active);
+        }
       }
+
+   
     })
   );
 }
 
 async function inputBox(txt: string, active: vscode.TextEditor) {
-  await vscode.window
+  return await vscode.window
     .showInputBox({
       prompt: "Seconds for retype",
       placeHolder: "the total seconds for retype",
@@ -39,6 +46,8 @@ async function inputBox(txt: string, active: vscode.TextEditor) {
         return;
       }
       if (millisecondForCharachter > 5) {
+        const textRange = getRange(active);
+        emptyTheFile(active, textRange);
         await retypeText(txt, active);
       }
     });
@@ -74,6 +83,9 @@ function emptyTheFile(active: vscode.TextEditor, textRange: vscode.Range) {
 
 async function retypeText(txt: string, active: vscode.TextEditor) {
   for (let i = -1; i < txt.length; i++) {
+    if(!isOn){
+      break;
+    }
     await delay();
     await insertChar(i);
   }

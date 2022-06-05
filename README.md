@@ -16,4 +16,16 @@ This extension contributes the following settings:
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### 0.0.3
+
+Added interrupt  functionality to the main-btn
+
+### 0.0.2
+
+Fixed Minimal time per charachter
+
+First Beta Relaese
+
+### 0.0.1
+
+First Beta Relaese
