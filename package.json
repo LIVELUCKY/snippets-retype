@@ -52,6 +52,15 @@
     },
     "repository": {
         "type": "git",
-        "url": ""
-    }
+        "url": "https://github.com/LIVELUCKY/snippets-retype.git"
+    },
+    "bugs": {
+        "url": "https://github.com/LIVELUCKY/snippets-retype/issues"
+    },
+    "license": "MIT",
+    "icon": "images/snippets-retype.png",
+    "publisher": "LIVELUCKY"
+
+
+
 }
